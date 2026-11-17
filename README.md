@@ -4,8 +4,8 @@ Dims and tints the screen on Windows. Made by Claude Code.
 
 A small tray app (it lives next to wifi and volume). Click the icon and a panel with two sliders pops up:
 
-- **Ljusstyrka** (brightness) – darkens the screen further than Windows allows, down to 5 %.
-- **Röd ton** (red tint) – from neutral, through warm orange, to fully red.
+- **Brightness** – darkens the screen further than Windows allows, down to 5%.
+- **Red tint** – from neutral, through warm orange, to fully red.
 
 There is no schedule. The values stay where you put them.
 

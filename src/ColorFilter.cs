@@ -3,8 +3,8 @@ using System.Runtime.InteropServices;
 
 namespace Dimma
 {
-    // Lägger en färgmatris över hela skärmen via Windows Magnification API.
-    // Dimning och röd ton blir en enda diagonal matris: R' = R*b, G' = G*b*g, B' = B*b*bl.
+    // Applies a color matrix to the whole screen through the Windows Magnification API.
+    // Dimming and red tint are combined into one diagonal matrix: R' = R*b, G' = G*b*g, B' = B*b*bl.
     static class ColorFilter
     {
         [StructLayout(LayoutKind.Sequential)]
@@ -33,16 +33,16 @@ namespace Dimma
             return initialized;
         }
 
-        /// <param name="brightness">0..1, där 1 är oförändrat.</param>
-        /// <param name="red">0..1, där 0 är ingen tint och 1 är helt rött.</param>
+        /// <param name="brightness">0..1, where 1 leaves the screen unchanged.</param>
+        /// <param name="red">0..1, where 0 is no tint and 1 is fully red.</param>
         public static bool Apply(double brightness, double red)
         {
             lastBrightness = Clamp01(brightness);
             lastRed = Clamp01(red);
             if (!EnsureInitialized()) return false;
 
-            // Blått försvinner linjärt, grönt långsammare. Mellanlägen blir varmt orange
-            // och maxläget blir helt rött.
+            // Blue fades out linearly, green more slowly. Values in between give a warm
+            // orange and the maximum is fully red.
             double green = 1.0 - lastRed * lastRed;
             double blue = 1.0 - lastRed;
 

@@ -5,7 +5,7 @@ using Microsoft.Win32;
 
 namespace Dimma
 {
-    // Färger i stil med Windows 11:s snabbinställningar, i ljust och mörkt läge.
+    // Colors in the style of the Windows 11 quick settings, in light and dark mode.
     class Theme
     {
         public bool Dark;
@@ -54,7 +54,7 @@ namespace Dimma
             return t;
         }
 
-        // AccentPalette innehåller 8 färger (RGBA). Mörkt läge använder en ljusare variant.
+        // AccentPalette holds 8 colors (RGBA). Dark mode uses a lighter variant.
         static Color ReadAccent(bool dark)
         {
             try

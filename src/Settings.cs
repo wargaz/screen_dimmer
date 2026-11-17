@@ -12,7 +12,7 @@ namespace Dimma
         public static int Brightness = 100;
         public static int Red = 0;
 
-        /// <returns>true om det är första gången appen körs.</returns>
+        /// <returns>true if this is the first time the app runs.</returns>
         public static bool Load()
         {
             try

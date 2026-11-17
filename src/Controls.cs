@@ -23,7 +23,7 @@ namespace Dimma
         protected override void OnMouseLeave(EventArgs e) { base.OnMouseLeave(e); hover = false; Invalidate(); }
     }
 
-    // Slider i Windows 11-stil.
+    // Windows 11 style slider.
     class Slider : ThemedControl
     {
         int val, minimum, maximum = 100;
@@ -143,7 +143,7 @@ namespace Dimma
         }
     }
 
-    // Av/på-knapp i Windows 11-stil med text bredvid.
+    // Windows 11 style toggle switch with a label next to it.
     class ToggleSwitch : ThemedControl
     {
         bool isChecked;
@@ -220,7 +220,7 @@ namespace Dimma
         }
     }
 
-    // Platt textknapp som får en bakgrund vid hovring.
+    // Flat text button that gets a background on hover.
     class FlatButton : ThemedControl
     {
         public FlatButton() { Cursor = Cursors.Hand; }

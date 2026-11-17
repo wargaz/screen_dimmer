@@ -5,7 +5,7 @@ using System.Windows.Forms;
 
 namespace Dimma
 {
-    // Den lilla panelen som dyker upp i nedre högra hörnet när man klickar på ikonen.
+    // The small panel that pops up in the bottom right corner when the tray icon is clicked.
     class Popup : Form
     {
         [DllImport("dwmapi.dll")]
@@ -47,11 +47,11 @@ namespace Dimma
             bright.ValueChanged += OnSliderChanged;
             red.ValueChanged += OnSliderChanged;
 
-            autostart = new ToggleSwitch { UiScale = s, Text = "Starta med Windows" };
+            autostart = new ToggleSwitch { UiScale = s, Text = "Start with Windows" };
             autostart.SetSilently(Autostart.IsEnabled());
             autostart.CheckedChanged += (o, e) => Autostart.Set(autostart.Checked);
 
-            reset = new FlatButton { UiScale = s, Text = "Återställ" };
+            reset = new FlatButton { UiScale = s, Text = "Reset" };
             reset.Click += (o, e) => ResetValues();
 
             Controls.AddRange(new Control[] { bright, red, autostart, reset });
@@ -105,7 +105,7 @@ namespace Dimma
             {
                 var cp = base.CreateParams;
                 cp.ClassStyle |= 0x20000; // CS_DROPSHADOW
-                cp.ExStyle |= 0x80;       // WS_EX_TOOLWINDOW, syns inte i Alt+Tab
+                cp.ExStyle |= 0x80;       // WS_EX_TOOLWINDOW, hidden from Alt+Tab
                 return cp;
             }
         }
@@ -127,10 +127,10 @@ namespace Dimma
             var left = TextFormatFlags.Left | TextFormatFlags.VerticalCenter | TextFormatFlags.NoPrefix;
             var right = TextFormatFlags.Right | TextFormatFlags.VerticalCenter | TextFormatFlags.NoPrefix;
 
-            TextRenderer.DrawText(g, "Ljusstyrka", Font, captionBright, theme.Text, left);
-            TextRenderer.DrawText(g, bright.Value + " %", Font, captionBright, theme.SubText, right);
-            TextRenderer.DrawText(g, "Röd ton", Font, captionRed, theme.Text, left);
-            TextRenderer.DrawText(g, red.Value + " %", Font, captionRed, theme.SubText, right);
+            TextRenderer.DrawText(g, "Brightness", Font, captionBright, theme.Text, left);
+            TextRenderer.DrawText(g, bright.Value + "%", Font, captionBright, theme.SubText, right);
+            TextRenderer.DrawText(g, "Red tint", Font, captionRed, theme.Text, left);
+            TextRenderer.DrawText(g, red.Value + "%", Font, captionRed, theme.SubText, right);
         }
 
         void OnSliderChanged(object sender, EventArgs e)
@@ -153,8 +153,8 @@ namespace Dimma
         public void Toggle()
         {
             if (Visible) { Hide(); return; }
-            // Ett klick på ikonen när panelen är öppen stänger den först (Deactivate)
-            // och skulle annars öppna den igen direkt.
+            // Clicking the icon while the panel is open first closes it (Deactivate),
+            // which would otherwise reopen it right away.
             if ((DateTime.Now - lastHidden).TotalMilliseconds < 300) return;
             ShowAtTray();
         }
@@ -187,7 +187,7 @@ namespace Dimma
 
         protected override void OnFormClosing(FormClosingEventArgs e)
         {
-            // Stäng aldrig panelen på riktigt via Alt+F4, göm den bara.
+            // Alt+F4 only hides the panel, it never really closes it.
             if (e.CloseReason == CloseReason.UserClosing) { e.Cancel = true; Hide(); }
             base.OnFormClosing(e);
         }

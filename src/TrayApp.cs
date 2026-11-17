@@ -35,23 +35,23 @@ namespace Dimma
         public TrayApp()
         {
             bool firstRun = Settings.Load();
-            // Första gången: slå på autostart. Annars: uppdatera sökvägen om exe-filen flyttats.
+            // First run: turn autostart on. Otherwise: update the path in case the exe was moved.
             if (firstRun || Autostart.IsRegistered()) Autostart.Set(true);
             if (firstRun) Settings.Save();
 
             popup = new Popup();
             popup.ValuesChanged += (o, e) => UpdateTooltip();
 
-            var resetItem = new ToolStripMenuItem("Återställ", null, (o, e) => popup.ResetValues());
+            var resetItem = new ToolStripMenuItem("Reset", null, (o, e) => popup.ResetValues());
             resetItem.ShortcutKeyDisplayString = "Ctrl+Alt+End";
-            var autoItem = new ToolStripMenuItem("Starta med Windows");
+            var autoItem = new ToolStripMenuItem("Start with Windows");
             autoItem.Click += (o, e) => Autostart.Set(!Autostart.IsEnabled());
             var menu = new ContextMenuStrip();
             menu.Opening += (o, e) => autoItem.Checked = Autostart.IsEnabled();
             menu.Items.Add(resetItem);
             menu.Items.Add(autoItem);
             menu.Items.Add(new ToolStripSeparator());
-            menu.Items.Add("Avsluta", null, (o, e) => ExitThread());
+            menu.Items.Add("Exit", null, (o, e) => ExitThread());
 
             tray = new NotifyIcon { ContextMenuStrip = menu };
             tray.MouseUp += (o, e) => { if (e.Button == MouseButtons.Left) popup.Toggle(); };
@@ -61,12 +61,12 @@ namespace Dimma
 
             if (!ColorFilter.Apply(Settings.Brightness / 100.0, Settings.Red / 100.0))
                 tray.ShowBalloonTip(5000, "Dimma",
-                    "Kunde inte aktivera färgfiltret. Är Förstoringsglaset igång?", ToolTipIcon.Warning);
+                    "Could not turn on the color filter. Is Windows Magnifier running?", ToolTipIcon.Warning);
 
             hotkeys = new HotkeyWindow();
             hotkeys.Pressed += () => popup.ResetValues();
 
-            // Efter vila, skärmbyte eller upplåsning kan Windows tappa filtret, så lägg på det igen.
+            // Windows can drop the filter after sleep, display changes or unlock, so apply it again.
             reapplyTimer = new System.Windows.Forms.Timer { Interval = 1500 };
             reapplyTimer.Tick += (o, e) => { reapplyTimer.Stop(); ColorFilter.Reapply(); };
 
@@ -102,7 +102,7 @@ namespace Dimma
 
         void UpdateTooltip()
         {
-            tray.Text = "Dimma\nLjusstyrka " + Settings.Brightness + " %  ·  Röd ton " + Settings.Red + " %";
+            tray.Text = "Dimma\nBrightness " + Settings.Brightness + "%  ·  Red tint " + Settings.Red + "%";
         }
 
         void UpdateIcon()
@@ -116,7 +116,7 @@ namespace Dimma
         [DllImport("user32.dll")]
         static extern bool DestroyIcon(IntPtr hIcon);
 
-        // En halvfylld cirkel, samma symbol som för kontrast/ljusstyrka.
+        // A half-filled circle, the usual symbol for contrast/brightness.
         static Icon MakeIcon(bool darkTaskbar)
         {
             int size = SystemInformation.SmallIconSize.Width;
@@ -156,7 +156,7 @@ namespace Dimma
         }
     }
 
-    // Global snabbtangent Ctrl+Alt+End som återställer skärmen om man dimmat för mycket.
+    // Global hotkey Ctrl+Alt+End that resets the screen if it has been dimmed too much.
     class HotkeyWindow : NativeWindow, IDisposable
     {
         [DllImport("user32.dll")]
