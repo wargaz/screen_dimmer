@@ -2,11 +2,11 @@ using System;
 using System.Windows.Forms;
 using Microsoft.Win32;
 
-namespace Dimma
+namespace ScreenDimmer
 {
     static class Settings
     {
-        const string KeyPath = @"Software\Dimma";
+        const string KeyPath = @"Software\ScreenDimmer";
         public const int MinBrightness = 5;
 
         public static int Brightness = 100;
@@ -19,7 +19,7 @@ namespace Dimma
             {
                 using (var k = Registry.CurrentUser.OpenSubKey(KeyPath))
                 {
-                    if (k == null) return true;
+                    if (k == null) return !MigrateLegacy();
                     Brightness = ReadInt(k, "Brightness", 100, MinBrightness, 100);
                     Red = ReadInt(k, "Red", 0, 0, 100);
                     return false;
@@ -29,6 +29,21 @@ namespace Dimma
             {
                 return false;
             }
+        }
+
+        // The app was called Dimma before. Move its saved values to the new key.
+        static bool MigrateLegacy()
+        {
+            const string legacyPath = @"Software\Dimma";
+            using (var old = Registry.CurrentUser.OpenSubKey(legacyPath))
+            {
+                if (old == null) return false;
+                Brightness = ReadInt(old, "Brightness", 100, MinBrightness, 100);
+                Red = ReadInt(old, "Red", 0, 0, 100);
+            }
+            Save();
+            try { Registry.CurrentUser.DeleteSubKeyTree(legacyPath, false); } catch { }
+            return true;
         }
 
         public static void Save()
@@ -56,7 +71,7 @@ namespace Dimma
     static class Autostart
     {
         const string RunKey = @"Software\Microsoft\Windows\CurrentVersion\Run";
-        const string Name = "Dimma";
+        const string Name = "ScreenDimmer";
 
         static string Command()
         {
@@ -75,7 +90,13 @@ namespace Dimma
 
         public static bool IsRegistered()
         {
-            return Current() != null;
+            if (Current() != null) return true;
+            try
+            {
+                using (var k = Registry.CurrentUser.OpenSubKey(RunKey))
+                    return k != null && k.GetValue("Dimma") != null; // from when the app was called Dimma
+            }
+            catch { return false; }
         }
 
         public static bool IsEnabled()
@@ -91,6 +112,7 @@ namespace Dimma
                 {
                     if (on) k.SetValue(Name, Command());
                     else k.DeleteValue(Name, false);
+                    k.DeleteValue("Dimma", false); // entry from when the app was called Dimma
                 }
             }
             catch { }

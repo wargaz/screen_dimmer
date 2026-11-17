@@ -3,7 +3,7 @@ using System.Drawing;
 using System.Drawing.Drawing2D;
 using Microsoft.Win32;
 
-namespace Dimma
+namespace ScreenDimmer
 {
     // Colors in the style of the Windows 11 quick settings, in light and dark mode.
     class Theme

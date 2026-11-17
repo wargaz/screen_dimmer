@@ -6,7 +6,7 @@ using System.Threading;
 using System.Windows.Forms;
 using Microsoft.Win32;
 
-namespace Dimma
+namespace ScreenDimmer
 {
     static class Program
     {
@@ -14,7 +14,7 @@ namespace Dimma
         static void Main()
         {
             bool created;
-            using (var mutex = new Mutex(true, @"Local\Dimma.SingleInstance", out created))
+            using (var mutex = new Mutex(true, @"Local\ScreenDimmer.SingleInstance", out created))
             {
                 if (!created) return;
                 Application.EnableVisualStyles();
@@ -60,7 +60,7 @@ namespace Dimma
             tray.Visible = true;
 
             if (!ColorFilter.Apply(Settings.Brightness / 100.0, Settings.Red / 100.0))
-                tray.ShowBalloonTip(5000, "Dimma",
+                tray.ShowBalloonTip(5000, "ScreenDimmer",
                     "Could not turn on the color filter. Is Windows Magnifier running?", ToolTipIcon.Warning);
 
             hotkeys = new HotkeyWindow();
@@ -102,7 +102,7 @@ namespace Dimma
 
         void UpdateTooltip()
         {
-            tray.Text = "Dimma\nBrightness " + Settings.Brightness + "%  ·  Red tint " + Settings.Red + "%";
+            tray.Text = "ScreenDimmer\nBrightness " + Settings.Brightness + "%  ·  Red tint " + Settings.Red + "%";
         }
 
         void UpdateIcon()

@@ -1,7 +1,7 @@
 using System;
 using System.Runtime.InteropServices;
 
-namespace Dimma
+namespace ScreenDimmer
 {
     // Applies a color matrix to the whole screen through the Windows Magnification API.
     // Dimming and red tint are combined into one diagonal matrix: R' = R*b, G' = G*b*g, B' = B*b*bl.

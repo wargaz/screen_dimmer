@@ -29,7 +29,7 @@ No install needed. It uses the C# compiler that ships with Windows (.NET Framewo
 .\build.ps1
 ```
 
-The result is `bin\Dimma.exe`.
+The result is `bin\ScreenDimmer.exe`.
 
 ## Limitations
 

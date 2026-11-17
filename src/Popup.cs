@@ -3,7 +3,7 @@ using System.Drawing;
 using System.Runtime.InteropServices;
 using System.Windows.Forms;
 
-namespace Dimma
+namespace ScreenDimmer
 {
     // The small panel that pops up in the bottom right corner when the tray icon is clicked.
     class Popup : Form
@@ -35,7 +35,7 @@ namespace Dimma
             StartPosition = FormStartPosition.Manual;
             KeyPreview = true;
             AutoScaleMode = AutoScaleMode.None;
-            Text = "Dimma";
+            Text = "ScreenDimmer";
             Font = new Font("Segoe UI", 9f);
 
             using (var g = CreateGraphics()) s = g.DpiX / 96f;
