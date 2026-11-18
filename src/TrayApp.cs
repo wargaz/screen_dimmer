@@ -36,7 +36,7 @@ namespace ScreenDimmer
         {
             bool firstRun = Settings.Load();
             // First run: turn autostart on. Otherwise: update the path in case the exe was moved.
-            if (firstRun || Autostart.IsRegistered()) Autostart.Set(true);
+            Autostart.SyncOnStartup(firstRun);
             if (firstRun) Settings.Save();
 
             popup = new Popup();
