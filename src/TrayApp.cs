@@ -59,6 +59,7 @@ namespace ScreenDimmer
             UpdateTooltip();
             tray.Visible = true;
 
+            Gamma.Apply();
             if (!ColorFilter.Apply(Settings.Brightness / 100.0, Settings.Red / 100.0))
                 tray.ShowBalloonTip(5000, "ScreenDimmer",
                     "Could not turn on the color filter. Is Windows Magnifier running?", ToolTipIcon.Warning);
@@ -68,7 +69,7 @@ namespace ScreenDimmer
 
             // Windows can drop the filter after sleep, display changes or unlock, so apply it again.
             reapplyTimer = new System.Windows.Forms.Timer { Interval = 1500 };
-            reapplyTimer.Tick += (o, e) => { reapplyTimer.Stop(); ColorFilter.Reapply(); };
+            reapplyTimer.Tick += (o, e) => { reapplyTimer.Stop(); ColorFilter.Reapply(); Gamma.Apply(); };
 
             SystemEvents.DisplaySettingsChanged += OnSystemChanged;
             SystemEvents.PowerModeChanged += OnPowerChanged;
@@ -79,6 +80,7 @@ namespace ScreenDimmer
         void Reapply()
         {
             ColorFilter.Reapply();
+            Gamma.Apply();
             reapplyTimer.Stop();
             reapplyTimer.Start();
         }

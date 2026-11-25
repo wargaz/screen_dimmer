@@ -35,6 +35,7 @@ The result is `bin\ScreenDimmer.exe`.
 
 - Does not work while Windows Magnifier is running.
 - Does not apply to the UAC prompt (secure desktop).
+- Sets a neutral gamma ramp so the mouse pointer gets dimmed too. This can override Windows Night light.
 
 ## License
 
