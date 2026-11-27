@@ -66,10 +66,21 @@ namespace ScreenDimmer
 
             hotkeys = new HotkeyWindow();
             hotkeys.Pressed += () => popup.ResetValues();
+            // Closing the lid often only turns the display off (modern standby) without a real
+            // sleep, so PowerModeChanged never fires. The display coming back on is the moment the
+            // driver resets its gamma ramp and colors.
+            hotkeys.DisplayOn += Reapply;
 
             // Windows can drop the filter after sleep, display changes or unlock, so apply it again.
+            // The graphics driver may still be waking up the first time, so repeat after 1.5 and 5 s.
             reapplyTimer = new System.Windows.Forms.Timer { Interval = 1500 };
-            reapplyTimer.Tick += (o, e) => { reapplyTimer.Stop(); ColorFilter.Reapply(); Gamma.Apply(); };
+            reapplyTimer.Tick += (o, e) =>
+            {
+                ColorFilter.Reapply();
+                Gamma.Apply();
+                if (reapplyTimer.Interval == 1500) reapplyTimer.Interval = 3500;
+                else reapplyTimer.Stop();
+            };
 
             SystemEvents.DisplaySettingsChanged += OnSystemChanged;
             SystemEvents.PowerModeChanged += OnPowerChanged;
@@ -82,6 +93,7 @@ namespace ScreenDimmer
             ColorFilter.Reapply();
             Gamma.Apply();
             reapplyTimer.Stop();
+            reapplyTimer.Interval = 1500;
             reapplyTimer.Start();
         }
 
@@ -167,27 +179,63 @@ namespace ScreenDimmer
         [DllImport("user32.dll")]
         static extern bool UnregisterHotKey(IntPtr hWnd, int id);
 
+        [DllImport("user32.dll")]
+        static extern IntPtr RegisterPowerSettingNotification(IntPtr hRecipient, ref Guid powerSetting, int flags);
+
+        [DllImport("user32.dll")]
+        static extern bool UnregisterPowerSettingNotification(IntPtr handle);
+
+        [StructLayout(LayoutKind.Sequential)]
+        struct POWERBROADCAST_SETTING
+        {
+            public Guid PowerSetting;
+            public uint DataLength;
+            public uint Data;
+        }
+
+        // GUID_CONSOLE_DISPLAY_STATE: Data is 0 for off, 1 for on and 2 for dimmed.
+        static Guid DisplayState = new Guid("6fe69556-704a-47a0-8f24-c28d936fda47");
+        const int WM_POWERBROADCAST = 0x0218, PBT_POWERSETTINGCHANGE = 0x8013;
+        IntPtr powerNotify;
+        bool displayWasOff;
+
         const int WM_HOTKEY = 0x0312;
         const uint MOD_ALT = 0x1, MOD_CONTROL = 0x2, MOD_NOREPEAT = 0x4000;
         const int Id = 1;
 
         public event Action Pressed;
+        public event Action DisplayOn;
 
         public HotkeyWindow()
         {
             CreateHandle(new CreateParams());
             RegisterHotKey(Handle, Id, MOD_CONTROL | MOD_ALT | MOD_NOREPEAT, (uint)Keys.End);
+            powerNotify = RegisterPowerSettingNotification(Handle, ref DisplayState, 0);
         }
 
         protected override void WndProc(ref Message m)
         {
             if (m.Msg == WM_HOTKEY && m.WParam.ToInt32() == Id && Pressed != null) Pressed();
+            if (m.Msg == WM_POWERBROADCAST && m.WParam.ToInt32() == PBT_POWERSETTINGCHANGE && m.LParam != IntPtr.Zero)
+            {
+                var setting = (POWERBROADCAST_SETTING)Marshal.PtrToStructure(m.LParam, typeof(POWERBROADCAST_SETTING));
+                if (setting.PowerSetting == DisplayState)
+                {
+                    if (setting.Data == 0) displayWasOff = true;
+                    else if (setting.Data == 1 && displayWasOff)
+                    {
+                        displayWasOff = false;
+                        if (DisplayOn != null) DisplayOn();
+                    }
+                }
+            }
             base.WndProc(ref m);
         }
 
         public void Dispose()
         {
             UnregisterHotKey(Handle, Id);
+            if (powerNotify != IntPtr.Zero) UnregisterPowerSettingNotification(powerNotify);
             DestroyHandle();
         }
     }

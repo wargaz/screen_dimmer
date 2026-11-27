@@ -14,7 +14,7 @@ namespace ScreenDimmer
     static class Settings
     {
         const string KeyPath = @"Software\ScreenDimmer";
-        public const int MinBrightness = 5;
+        public const int MinBrightness = 20;
 
         public static int Brightness = 100;
         public static int Red = 0;
